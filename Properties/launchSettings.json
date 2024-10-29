@@ -26,7 +26,8 @@
       "launchUrl": "swagger",
       "applicationUrl": "https://localhost:5000;http://localhost:5036",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "DATABASE_CONECTION_STRING": "postgresql://u_grupo01:grupo01@estagiosv2.pcs.usp.br:65432/db_grupo01"
       }
     },
     "IIS Express": {
@@ -37,5 +38,5 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     }
-  }
+  },
 }
