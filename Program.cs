@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using System.Data.SqlClient;
 using TchauDengue.Providers;
+using TchauDengue.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,8 +12,10 @@ builder.Services.AddDbContext<DataContext>(options =>
     options.UseNpgsql(conection);
 });
 
+builder.Services.AddScoped<IUsersService, UsersService>();
+
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 

@@ -1,34 +1,60 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Cryptography;
+using System.Text;
+using TchauDengue.Entities;
+using TchauDengue.Providers;
+using TchauDengue.Services;
 
 namespace TchauDengue.Controllers
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("/api/users")]
     public class UsersController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
 
-        private readonly ILogger<UsersController> _logger;
+        private readonly ILogger<UsersController> logger;
+        private readonly IUsersService usersService;
+        private readonly DataContext dataContext;
 
-        public UsersController(ILogger<UsersController> logger)
+        public UsersController(ILogger<UsersController> logger, IUsersService usersService, DataContext dataContext)
         {
-            _logger = logger;
+            this.logger = logger;
+            this.usersService = usersService;
+            this.dataContext = dataContext;
         }
 
         [HttpGet]
-        [Route("/GetXesque")]
-        public IEnumerable<WeatherForecast> Get()
+        [Route("/getUsers")]
+        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            IEnumerable<User> users = await usersService.GetUsers();
+
+            return Ok(users);
+        }
+
+        [HttpGet]
+        [Route("/{id}")]
+        public async Task<ActionResult<User>> FindById(int id)
+        {
+            User? user = await this.dataContext.Users.FindAsync(id);
+
+            return Ok(user);
+        }
+
+        [HttpPost]
+        [Route("/register")]
+        public async Task<ActionResult<User>> Register(string name, string password)
+        {
+            try
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                User user = await this.usersService.Register(name, password);
+                return Ok(user);
+            }
+            catch(Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+
         }
     }
 }
