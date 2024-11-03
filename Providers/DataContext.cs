@@ -13,7 +13,7 @@ namespace TchauDengue.Providers
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseNpgsql("postgresql://u_grupo02:grupo02@estagiosv2.pcs.usp.br:65432/db_grupo02");
+                optionsBuilder.UseNpgsql("Host=estagiosv2.pcs.usp.br:65432;Database=db_grupo02;Username=u_grupo02;Password=grupo02");
             }
         }
 

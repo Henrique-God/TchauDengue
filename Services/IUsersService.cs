@@ -7,5 +7,6 @@ namespace TchauDengue.Services
     {
         public Task<IEnumerable<User>> GetUsers();
         public Task<User> Register(string name, string password);
+        public Task<bool> CheckLogin(string userName, string password);
     }
 }

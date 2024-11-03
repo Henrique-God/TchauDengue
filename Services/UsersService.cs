@@ -48,5 +48,23 @@ namespace TchauDengue.Services
 
             return user;
         }
+
+        public async Task<bool> CheckLogin(string userName, string password)
+        {
+            User user = await this.DataContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+
+            if (user == null) return false;
+
+            HMACSHA512 hmac = new HMACSHA512(user.PasswordSalt);
+
+            byte[] computedhash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+
+            for (int i = 0; i < computedhash.Length; i++)
+            {
+                if (computedhash[i] != user.PasswordHash[i]) return false;
+            }
+
+            return true;
+        }
     }
 }
