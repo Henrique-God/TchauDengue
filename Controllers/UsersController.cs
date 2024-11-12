@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
@@ -32,31 +33,31 @@ namespace TchauDengue.Controllers
 
         [HttpGet]
         [Route("/getUsers")]
-        public async Task<ActionResult<IEnumerable<User>>> GetUsers()
+        public async Task<ActionResult<IEnumerable<UserReturnDTO>>> GetUsers()
         {
-            IEnumerable<User> users = await usersService.GetUsers();
+            IEnumerable<UserReturnDTO> users = await usersService.GetUsers();
 
             return Ok(users);
         }
 
         [HttpGet]
         [Route("/{id}")]
-        public async Task<ActionResult<User>> FindById(int id)
+        public async Task<ActionResult<UserReturnDTO>> FindById(int id)
         {
             User? user = await this.dataContext.Users.FindAsync(id);
 
-            return Ok(user);
+            return Ok(new UserReturnDTO(user));
         }
 
         [HttpPost]
         [AllowAnonymous]
         [Route("/register")]
-        public async Task<ActionResult<User>> Register(string name, string password)
+        public async Task<ActionResult> Register(RegisterDTO registerDTO)
         {
             try
             {
-                User user = await this.usersService.Register(name, password);
-                return Ok(user);
+                User user = await this.usersService.Register(registerDTO);
+                return Ok();
             }
             catch(Exception e)
             {
@@ -68,7 +69,7 @@ namespace TchauDengue.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("/login")]
-        public async Task<ActionResult<UserDTO>> Login(string userName, string password)
+        public async Task<ActionResult<LoginDTO>> Login(string userName, string password)
         {
             User user = await this.dataContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
             
@@ -83,11 +84,7 @@ namespace TchauDengue.Controllers
                 if (computedhash[i] != user.PasswordHash[i]) return Unauthorized("Senha incorreta!");
             }
 
-            return new UserDTO
-            {
-                UserName = user.UserName,
-                Token = this.tokenService.CreateToken(user)
-            };
+            return new LoginDTO(userName, this.tokenService.CreateToken(user));
         }
     }
 }

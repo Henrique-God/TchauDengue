@@ -10,6 +10,10 @@
         public required string PhoneNumber { get; set; }
         public required string ZipCode { get; set; }
         public required int SocialNumber { get; set; }
+
+        public required DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public required DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+        public ICollection<WikiPage> WikiPages { get; set; } = new List<WikiPage>();
         
     }
 }
