@@ -114,10 +114,13 @@ namespace TchauDengue.Controllers
             {
                 return BadRequest("User not found");
             }
-            
-            user = await this.usersService.UpdateUser(user, updateDTO);
 
-            return Ok();
+            if (await this.usersService.UpdateUser(user, updateDTO)) return Ok("User Updated!");
+
+            else
+            {
+                return BadRequest();
+            }
         }
     }
 }
