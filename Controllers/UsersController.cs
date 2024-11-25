@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using TchauDengue.DTOs;
@@ -56,7 +57,7 @@ namespace TchauDengue.Controllers
                 User user = await this.usersService.Register(registerDTO);
                 return Ok("Usuário Criado com Sucesso!!");
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
@@ -68,8 +69,8 @@ namespace TchauDengue.Controllers
         [Route("login")]
         public async Task<ActionResult<LoginDTO>> Login(string userName, string password)
         {
-            User user = await this.dataContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
-            
+            User user = await this.usersService.FindByUserName(userName);
+
             if (user == null) return Unauthorized("Usuário incorreto!");
 
             HMACSHA512 hmac = new HMACSHA512(user.PasswordSalt);
@@ -82,6 +83,41 @@ namespace TchauDengue.Controllers
             }
 
             return new LoginDTO(userName, this.tokenService.CreateToken(user));
+        }
+
+        [HttpGet]
+        [Route("user")]
+        public async Task<ActionResult<UserReturnDTO>> GetUser(string userName)
+        {
+            User user = await this.usersService.FindByUserName(userName);
+
+            if (user == null)
+            {
+                return Ok("Usuário não encontrado!");
+            }
+            else
+            {
+                return Ok(new UserReturnDTO(user));
+            }
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> UpdateUser(UpdateUserDTO updateDTO)
+        {
+            string username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (username == null) return BadRequest("No username found in token!");
+
+            User user = await this.usersService.FindByUserName(username);
+
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+            
+            user = await this.usersService.UpdateUser(user, updateDTO);
+
+            return Ok();
         }
     }
 }

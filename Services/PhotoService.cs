@@ -32,9 +32,11 @@ namespace TchauDengue.Services
             return uploadResult;
         }
 
-        public Task<DeletionResult> DeletePhotoAsync(string publicId)
+        public async Task<DeletionResult> DeletePhotoAsync(string publicId)
         {
-            throw new NotImplementedException();
+            var deleteParams = new DeletionParams(publicId);
+
+            return await this.cloudinary.DestroyAsync(deleteParams);
         }
     }
 }
