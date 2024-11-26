@@ -30,7 +30,7 @@ namespace TchauDengue.Controllers
         }
 
         [HttpGet]
-        [Route("getUsers")]
+        [Route("get-users")]
         public async Task<ActionResult<IEnumerable<UserReturnDTO>>> GetUsers()
         {
             IEnumerable<UserReturnDTO> users = await usersService.GetUsers();

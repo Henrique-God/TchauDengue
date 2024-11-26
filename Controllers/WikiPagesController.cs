@@ -6,7 +6,7 @@ namespace TchauDengue.Controllers
 {
     [ApiController]
     [Authorize]
-    [Route("/pages")]
+    [Route("/wikipages")]
     public class WikiPagesController: ControllerBase
     {
         private readonly DataContext DataContext;
@@ -14,6 +14,11 @@ namespace TchauDengue.Controllers
         public WikiPagesController(DataContext dataContext)
         {
             this.DataContext = dataContext;
+        }
+
+        public async Task<ActionResult> CreatePage()
+        {
+            return Ok();
         }
     }
 }
