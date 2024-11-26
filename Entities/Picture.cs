@@ -1,8 +1,7 @@
 ﻿namespace TchauDengue.Entities
 {
-    public class Photo
+    public class Picture
     {
-        public int Id { get; set; }
         public required string Url { get; set; }
         public string? PublicId { get; set; }
     }

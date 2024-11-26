@@ -1,11 +1,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using TchauDengue.DTOs;
 using TchauDengue.Entities;
+using TchauDengue.Models;
 using TchauDengue.Providers;
 using TchauDengue.Services;
 
@@ -13,7 +13,7 @@ namespace TchauDengue.Controllers
 {
     [ApiController]
     [Route("/users")]
-    [Authorize]
+    [Authorize(Roles ="ADMIN")]
     public class UsersController : ControllerBase
     {
 
@@ -86,8 +86,8 @@ namespace TchauDengue.Controllers
         }
 
         [HttpGet]
-        [Route("user")]
-        public async Task<ActionResult<UserReturnDTO>> GetUser(string userName)
+        [Route("get-user")]
+        public async Task<ActionResult<User>> GetUser(string userName)
         {
             User user = await this.usersService.FindByUserName(userName);
 
@@ -97,11 +97,12 @@ namespace TchauDengue.Controllers
             }
             else
             {
-                return Ok(new UserReturnDTO(user));
+                return Ok(new FullUserDTO(user));
             }
         }
 
         [HttpPut]
+        [Route("update-user")]
         public async Task<ActionResult> UpdateUser(UpdateUserDTO updateDTO)
         {
             string username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -121,6 +122,40 @@ namespace TchauDengue.Controllers
             {
                 return BadRequest();
             }
+        }
+
+        [HttpPut]
+        [Route("aprove-user")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<ActionResult> AproveUser(int userId)
+        {
+            if (await this.usersService.AproveUser(userId)) return Ok("User Aproved!");
+
+            else
+            {
+                return BadRequest();
+            }
+        }
+
+        [HttpPut]
+        [Route("add-photo")]
+        public async Task<ActionResult<Picture>> AddPhoto(IFormFile photo)
+        {
+            string username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (username == null) return BadRequest("No username found in token!");
+
+            User user = await this.usersService.FindByUserName(username);
+
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            Picture addedPicture = await this.usersService.AddPhoto(user, photo);
+            
+            return Ok(addedPicture);
+
         }
     }
 }

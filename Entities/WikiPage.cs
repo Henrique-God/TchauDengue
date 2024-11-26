@@ -10,6 +10,7 @@ namespace TchauDengue.Entities
         public string PageTitle { get; set; }
         public User Owner { get; set; } = null!;
         public int UserId { get; set; }
+        public bool Validated { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public ICollection<PageHistory> History {  get; set; }

@@ -8,9 +8,13 @@ namespace TchauDengue.Services
     public class PhotoService : IPhotoService
     {
         private readonly Cloudinary cloudinary;
-        public PhotoService(IOptions<CloudinaryConfig> config)
+        public PhotoService(IConfiguration configuration)
         {
-            Account acc = new Account(cloud: config.Value.CloudName, apiKey: config.Value.ApiKey, apiSecret: config.Value.ApiSecret);
+            var cloudName = configuration["CloudinaryConfig:CloudName"];
+            var apiKey = configuration["CloudinaryConfig:ApiKey"];
+            var apiSecret = configuration["CloudinaryConfig:ApiSecret"];
+
+            Account acc = new Account(cloud: cloudName, apiKey: apiKey, apiSecret: apiSecret);
             this.cloudinary = new Cloudinary(acc);
         }
         public async Task<ImageUploadResult> AddPhotoAsync(IFormFile file)

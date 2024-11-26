@@ -11,12 +11,14 @@ namespace TchauDengue.Services
 {
     public class UsersService: IUsersService
     {
-        public UsersService(DataContext dataContext)
+        public UsersService(DataContext dataContext, IPhotoService photoService)
         {
             this.DataContext = dataContext;
+            this.PhotoService = photoService;
         }
 
         private DataContext DataContext { get; }
+        private IPhotoService PhotoService { get; }
 
         public async Task<IEnumerable<UserReturnDTO>> GetUsers()
         {
@@ -43,10 +45,6 @@ namespace TchauDengue.Services
             {
                 throw new UserAlreadyExistsException("CPF em uso!");
             }
-            if (await this.DataContext.Users.AnyAsync(u => u.PhoneNumber == registerDTO.PhoneNumber))
-            {
-                throw new UserAlreadyExistsException("Telefone em uso!");
-            }
 
             string validation = ValidationStatus.VALIDATED;
 
@@ -60,13 +58,9 @@ namespace TchauDengue.Services
             {
                 UserName = registerDTO.UserName,
                 Email = registerDTO.Email,
-                PhoneNumber = registerDTO.PhoneNumber,
                 SocialNumber = registerDTO.SocialNumber,
                 ZipCode = registerDTO.ZipCode,
-                City = registerDTO.City,
-                Neighbor = registerDTO.Neighbor,
                 Validated = validation,
-                State = registerDTO.State,
                 Role = registerDTO.Role,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
@@ -119,19 +113,10 @@ namespace TchauDengue.Services
                 throw new UserAlreadyExistsException("Email em uso!");
             }
 
-            if (user.PhoneNumber != updateDto.PhoneNumber &&
-                await this.DataContext.Users.AnyAsync(u => u.PhoneNumber == updateDto.PhoneNumber))
-            {
-                throw new UserAlreadyExistsException("Telefone em uso!");
-            }
-
             if (user.UserName != updateDto.UserName) user.UserName = updateDto.UserName;
             if (user.Email != updateDto.Email) user.Email = updateDto.Email;
-            if (user.PhoneNumber != updateDto.PhoneNumber) user.PhoneNumber = updateDto.PhoneNumber;
             if (user.ZipCode != updateDto.ZipCode) user.ZipCode = updateDto.ZipCode;
-            if (user.City != updateDto.City) user.City = updateDto.City;
-            if (user.Neighbor != updateDto.Neighbor) user.Neighbor = updateDto.Neighbor;
-            if (user.State != updateDto.State) user.State = updateDto.State;
+            if (user.Role != updateDto.Role) user.Role = updateDto.Role;
 
             if (!string.IsNullOrEmpty(updateDto.Password))
             {
@@ -144,6 +129,37 @@ namespace TchauDengue.Services
 
             this.DataContext.Users.Update(user);
             return await this.DataContext.SaveChangesAsync() > 0;
+        }
+
+        public async Task<bool> AproveUser(int userId)
+        {
+            User user = await this.DataContext.Users.FindAsync(userId);
+
+            if (user == null) return false;
+
+            user.UpdatedAt = DateTime.UtcNow;
+            user.Validated = ValidationStatus.VALIDATED;
+
+            this.DataContext.Users.Update(user);
+            return await this.DataContext.SaveChangesAsync() > 0;
+        }
+        public async Task<Picture> AddPhoto(User user, IFormFile photo)
+        {
+            var result = await this.PhotoService.AddPhotoAsync(photo);
+
+            if (result.Error != null) throw new Exception("Unable to upload photo");
+
+            Picture picture = new Picture
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId,
+            };
+
+            user.ProfilePicture = result.SecureUrl.AbsoluteUri;
+
+            await this.DataContext.SaveChangesAsync();
+
+            return picture;
         }
 
     }
