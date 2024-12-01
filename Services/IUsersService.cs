@@ -12,6 +12,8 @@ namespace TchauDengue.Services
         public Task<User> FindByUserName(string userName);
         public Task<bool> UpdateUser(User user, UpdateUserDTO updateDto);
         public Task<Picture> AddPhoto(User user, IFormFile photo);
+        public Task<Picture> AddDocument(User user, IFormFile document);
         public Task<bool> AproveUser(int userId);
+        public Task<byte[]> GetDocument(User user, string pdfUrl);
     }
 }

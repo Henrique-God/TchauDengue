@@ -4,6 +4,9 @@
     {
         public int Id { get; set; }
         public string? ProfilePicture { get; set; }
+        public string PicturePublicId { get; set; }
+        public string? PdfUrl { get; set; }
+        public string? PdfPublicId { get; set; }
         public required string UserName { get; set; }
         public required byte[] PasswordHash { get; set; }
         public required byte[] PasswordSalt { get; set; }

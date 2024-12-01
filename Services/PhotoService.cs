@@ -1,7 +1,5 @@
 ﻿using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
-using Microsoft.Extensions.Options;
-using TchauDengue.Config;
 
 namespace TchauDengue.Services
 {
@@ -27,7 +25,8 @@ namespace TchauDengue.Services
                 var UploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = "TchauDengue"
+                    Folder = "TchauDengue",
+                    Type = "public"
                 };
 
                 uploadResult = await cloudinary.UploadAsync(UploadParams);
@@ -40,7 +39,7 @@ namespace TchauDengue.Services
         {
             var deleteParams = new DeletionParams(publicId);
 
-            return await this.cloudinary.DestroyAsync(deleteParams);
+            return await cloudinary.DestroyAsync(deleteParams);
         }
     }
 }

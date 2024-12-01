@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using System.Net.Http;
 using System.Security.Cryptography;
 using System.Text;
 using TchauDengue.DTOs;
@@ -11,14 +12,18 @@ namespace TchauDengue.Services
 {
     public class UsersService: IUsersService
     {
-        public UsersService(DataContext dataContext, IPhotoService photoService)
+        public UsersService(DataContext dataContext, IPhotoService photoService, IPdfService pdfService)
         {
             this.DataContext = dataContext;
             this.PhotoService = photoService;
+            this.HttpClient = new HttpClient();
+            this.PdfService = pdfService;
         }
 
         private DataContext DataContext { get; }
         private IPhotoService PhotoService { get; }
+        private HttpClient HttpClient { get; }
+        private IPdfService PdfService { get; }
 
         public async Task<IEnumerable<UserReturnDTO>> GetUsers()
         {
@@ -94,7 +99,9 @@ namespace TchauDengue.Services
 
         public async Task<User> FindByUserName(string userName)
         {
-            User user = await this.DataContext.Users.FirstOrDefaultAsync(x => x.UserName == userName);
+            User user = await this.DataContext.Users
+                .Include(w => w.WikiPages)
+                .FirstOrDefaultAsync(x => x.UserName == userName);
 
             return user;
         }
@@ -156,10 +163,57 @@ namespace TchauDengue.Services
             };
 
             user.ProfilePicture = result.SecureUrl.AbsoluteUri;
+            user.PicturePublicId = result.PublicId;
 
             await this.DataContext.SaveChangesAsync();
 
             return picture;
+        }
+
+        public async Task<Picture> AddDocument(User user, IFormFile document)
+        {
+            var result = await this.PdfService.AddPdfAsync(document);
+
+            if (result.Error != null) throw new Exception("Unable to upload Document");
+
+            Picture picture = new Picture
+            {
+                Url = result.SecureUrl.AbsoluteUri,
+                PublicId = result.PublicId,
+            };
+
+            user.PdfUrl = result.SecureUrl.AbsoluteUri;
+            user.PdfPublicId = result.PublicId;
+
+            await this.DataContext.SaveChangesAsync();
+
+            return picture;
+        }
+
+        public async Task<byte[]> GetDocument(User user, string pdfUrl)
+        {
+            User? documentOwner = await this.DataContext.Users.FirstOrDefaultAsync(x => x.PdfUrl == pdfUrl);
+
+            if(user.Role == Roles.ADMIN || documentOwner.UserName == user.UserName)
+            {
+                try
+                {
+                    HttpResponseMessage response = await this.HttpClient.GetAsync(pdfUrl);
+
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        throw new Exception($"Failed to download PDF: {response.StatusCode}");
+                    }
+
+                    return await response.Content.ReadAsByteArrayAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Erro ao baixar o PDF: {ex.Message}", ex);
+                }
+            }
+
+            return null;
         }
 
     }

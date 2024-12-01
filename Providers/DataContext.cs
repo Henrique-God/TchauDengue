@@ -18,5 +18,6 @@ namespace TchauDengue.Providers
         }
 
         public DbSet<User> Users {  get; set; }
+        public DbSet<WikiPage> WikiPages { get; set; }
     }
 }

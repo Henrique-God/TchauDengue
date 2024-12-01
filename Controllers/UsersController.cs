@@ -50,12 +50,13 @@ namespace TchauDengue.Controllers
         [HttpPost]
         [AllowAnonymous]
         [Route("register")]
-        public async Task<ActionResult> Register(RegisterDTO registerDTO)
+        public async Task<ActionResult<LoginDTO>> Register(RegisterDTO registerDTO)
         {
             try
             {
                 User user = await this.usersService.Register(registerDTO);
-                return Ok("Usuário Criado com Sucesso!!");
+                return Ok(new LoginDTO(user.UserName, this.tokenService.CreateToken(user)));
+
             }
             catch (Exception e)
             {
@@ -156,6 +157,47 @@ namespace TchauDengue.Controllers
             
             return Ok(addedPicture);
 
+        }
+
+        [HttpPut]
+        [Route("add-document")]
+        public async Task<ActionResult<Picture>> AddDocument(IFormFile document)
+        {
+            string username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (username == null) return BadRequest("No username found in token!");
+
+            User user = await this.usersService.FindByUserName(username);
+
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            Picture addedPicture = await this.usersService.AddDocument(user, document);
+
+            return Ok(addedPicture);
+
+        }
+
+        [HttpGet]
+        [Route("get-document")]
+        public async Task<ActionResult> GetDocument(string pdfUrl)
+        {
+            string username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+            if (username == null) return BadRequest("No username found in token!");
+
+            User user = await this.usersService.FindByUserName(username);
+
+            if (user == null)
+            {
+                return BadRequest("User not found");
+            }
+
+            byte[] pdfContent = await this.usersService.GetDocument(user, pdfUrl);
+
+            return File(pdfContent, "application/pdf", "document.pdf");
         }
     }
 }

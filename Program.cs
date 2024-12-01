@@ -12,6 +12,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddScoped<IUsersService, UsersService>();
 builder.Services.AddScoped<IPhotoService, PhotoService>();
+builder.Services.AddScoped<IPdfService, PdfService>();
+builder.Services.AddScoped<IWikiPagesService, WikiPagesService>();
 
 builder.Services.AddControllers();
 
