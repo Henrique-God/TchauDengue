@@ -156,6 +156,7 @@ namespace TchauDengue.Controllers
         public async Task<ActionResult<IEnumerable<WikiPageResponseDTO>>> GetAllPages()
         {
             List<WikiPageResponseDTO> page = await this.dataContext.WikiPages
+                .Include(w => w.History)
                 .Select(w => new WikiPageResponseDTO(w))
                 .ToListAsync();
 
