@@ -131,16 +131,21 @@ namespace TchauDengue.Controllers
 
             return Ok(picture);
         }
-
         [HttpGet("search-pages/{pageTitle}")]
         public async Task<ActionResult<IEnumerable<WikiPageResponseDTO>>> SearchPages(string pageTitle)
         {
-            List<WikiPageResponseDTO> pages = await this.dataContext.WikiPages.Include(w => w.History).Where(p => p.Validated ==true && pageTitle.StartsWith(pageTitle.ToLower()))
+            // Normalize slug back to title format (replace hyphens with spaces, then compare case-insensitively)
+            string formattedTitle = pageTitle.Replace("-", " ").ToLower();
+            
+            List<WikiPageResponseDTO> pages = await this.dataContext.WikiPages
+                .Include(w => w.History)
+                .Where(p => p.Validated == true && p.PageTitle.ToLower() == formattedTitle)
                 .Select(wp => new WikiPageResponseDTO(wp))
                 .ToListAsync();
             
-            return Ok(pages); 
+            return Ok(pages);
         }
+
 
         [HttpPut("approve/{id}")]
         [Authorize(Roles = "ADMIN")]
@@ -162,21 +167,18 @@ namespace TchauDengue.Controllers
             return BadRequest("Não foi possível aprovar a página");
         }
 
-        [HttpGet("get-tittles")]
-        public async Task<ActionResult> GetTittles()
+        [HttpGet("get-titles")]
+        public async Task<ActionResult> GetTitles()
         {
             List<string> page = await this.dataContext.WikiPages
                 .Where(wp => wp.Validated == true)
                 .Select(w => w.PageTitle)
                 .ToListAsync();
 
-            if (page == null)
-            {
-                return BadRequest("Nenhum título encontrado");
-            }
-
-            return Ok(page);
+            // Return an empty list with status 200 if no titles are found
+            return Ok(page ?? new List<string>());
         }
+
 
         [HttpGet("get-all")]
         [Authorize(Roles = "ADMIN")]
