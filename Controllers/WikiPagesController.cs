@@ -101,9 +101,18 @@ namespace TchauDengue.Controllers
             if (page == null)
                 return NotFound();
 
-            User user = this.dataContext.Users.Find(page.UserId);
+            string userName = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            return Ok(new WikiPageResponseDTO(page, user.UserName));
+            if (userName == null) return BadRequest("No username found in token!");
+
+            User requester = await this.usersService.FindByUserName(userName);
+
+            User owner = this.dataContext.Users.Find(page.UserId);
+
+            if (requester.Role != Roles.ADMIN && requester.Id != owner.Id)
+                return Forbid("Você não tem acesso à essa página!");
+
+            return Ok(new WikiPageResponseDTO(page, owner.UserName));
         }
 
         [HttpPost]
@@ -146,7 +155,25 @@ namespace TchauDengue.Controllers
 
             page.Validated = true;
 
-            await this.dataContext.SaveChangesAsync();
+
+            if(await this.dataContext.SaveChangesAsync() > 0)
+            return Ok(page);
+
+            return BadRequest("Não foi possível aprovar a página");
+        }
+
+        [HttpGet("get-tittles")]
+        public async Task<ActionResult> GetTittles()
+        {
+            List<string> page = await this.dataContext.WikiPages
+                .Where(wp => wp.Validated == true)
+                .Select(w => w.PageTitle)
+                .ToListAsync();
+
+            if (page == null)
+            {
+                return BadRequest("Nenhum título encontrado");
+            }
 
             return Ok(page);
         }
@@ -157,6 +184,23 @@ namespace TchauDengue.Controllers
         {
             List<WikiPageResponseDTO> page = await this.dataContext.WikiPages
                 .Include(w => w.History)
+                .Select(w => new WikiPageResponseDTO(w))
+                .ToListAsync();
+
+            if (page == null)
+            {
+                return BadRequest("Páginas não encontrada!");
+            }
+
+            return Ok(page);
+        }
+
+        [HttpGet("get-pages")]
+        public async Task<ActionResult<IEnumerable<WikiPageResponseDTO>>> GetApprovedPages()
+        {
+            List<WikiPageResponseDTO> page = await this.dataContext.WikiPages
+                .Include(w => w.History)
+                .Where(wp => wp.Validated == true)
                 .Select(w => new WikiPageResponseDTO(w))
                 .ToListAsync();
 

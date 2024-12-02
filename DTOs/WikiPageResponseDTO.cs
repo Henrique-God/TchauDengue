@@ -6,6 +6,7 @@ public class WikiPageResponseDTO
     public string PageText { get; set; }
     public string PageTitle { get; set; }
     public string OwnerName { get; set; }
+    public bool Validated { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
     public List<PageHistoryResponseDTO> History { get; set; }
@@ -17,6 +18,7 @@ public class WikiPageResponseDTO
         this.PageTitle = wikiPage.PageTitle;
         this.OwnerName = userName ?? "";
         this.UpdatedAt = wikiPage.UpdatedAt;
+        this.Validated = wikiPage.Validated;
         this.History = wikiPage.History
             .Select(ph => new PageHistoryResponseDTO(ph))
             .ToList();
@@ -28,6 +30,7 @@ public class WikiPageResponseDTO
         this.PageText = wikiPage.PageText;
         this.PageTitle = wikiPage.PageTitle;
         this.OwnerName = "";
+        this.Validated = wikiPage.Validated;
         this.UpdatedAt = wikiPage.UpdatedAt;
         this.History = wikiPage.History
             .Select(ph => new PageHistoryResponseDTO(ph))
