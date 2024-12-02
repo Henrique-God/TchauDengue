@@ -121,7 +121,7 @@ namespace TchauDengue.Controllers
         {
             var result = await this.PhotoService.AddPhotoAsync(photo);
 
-            if (result.Error != null) throw new Exception("Unable to upload photo");
+            if (result.Error != null) throw new Exception(result.Error.Message);
 
             Picture picture = new Picture
             {
