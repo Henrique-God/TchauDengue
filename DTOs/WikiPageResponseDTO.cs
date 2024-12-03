@@ -3,43 +3,48 @@
 public class WikiPageResponseDTO
 {
     public int Id { get; set; }
-    public string PageText { get; set; }
-    public string PageTitle { get; set; }
-    public string OwnerName { get; set; }
-    public bool Validated { get; set; }
+    public string PageText { get; set; } = string.Empty; // Default to empty string if null
+    public string PageTitle { get; set; } = string.Empty; // Default to empty string if null
+    public string OwnerName { get; set; } = string.Empty; // Default to empty string if null
     public DateTime CreatedAt { get; set; }
+    public bool Validated { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public List<PageHistoryResponseDTO> History { get; set; }
+    public List<PageHistoryResponseDTO> History { get; set; } = new List<PageHistoryResponseDTO>(); // Default to empty list if null
 
-public WikiPageResponseDTO(WikiPage wikiPage, string userName)
-{
-    if (wikiPage == null) throw new ArgumentNullException(nameof(wikiPage));
-    
-    this.Id = wikiPage.Id;
-    this.PageText = wikiPage.PageText ?? "";
-    this.PageTitle = wikiPage.PageTitle ?? "";
-    this.OwnerName = userName ?? "";
-    this.Validated = wikiPage.Validated;
-    this.UpdatedAt = wikiPage.UpdatedAt;
-    this.History = (wikiPage.History ?? new List<PageHistory>())
-        .Select(ph => new PageHistoryResponseDTO(ph))
-        .ToList();
-}
+    // Constructor that requires both WikiPage and userName
+    public WikiPageResponseDTO(WikiPage wikiPage, string userName)
+    {
+        if (wikiPage == null) throw new ArgumentNullException(nameof(wikiPage));
 
+        this.Id = wikiPage.Id;
+        this.PageText = wikiPage.PageText ?? string.Empty;  // Default to empty string if null
+        this.PageTitle = wikiPage.PageTitle ?? string.Empty; // Default to empty string if null
+        this.OwnerName = userName ?? string.Empty;  // Default to empty string if null
+        this.UpdatedAt = wikiPage.UpdatedAt;
+        this.Validated = wikiPage.Validated;
+        
+        // Ensure History is not null before proceeding with the Select operation
+        this.History = wikiPage.History?.Select(ph => new PageHistoryResponseDTO(ph)).ToList() ?? new List<PageHistoryResponseDTO>(); // Default to empty list if History is null
+    }
 
+    // Constructor that only requires WikiPage
     public WikiPageResponseDTO(WikiPage wikiPage)
     {
+        if (wikiPage == null) throw new ArgumentNullException(nameof(wikiPage));
+
         this.Id = wikiPage.Id;
-        this.PageText = wikiPage.PageText;
-        this.PageTitle = wikiPage.PageTitle;
-        this.OwnerName = "";
-        this.Validated = wikiPage.Validated;
+        this.PageText = wikiPage.PageText ?? string.Empty; // Default to empty string if null
+        this.PageTitle = wikiPage.PageTitle ?? string.Empty; // Default to empty string if null
+        this.OwnerName = string.Empty; // Default to empty string if OwnerName is not set
         this.UpdatedAt = wikiPage.UpdatedAt;
-        this.History = wikiPage.History
-            .Select(ph => new PageHistoryResponseDTO(ph))
-            .ToList();
+        this.Validated = wikiPage.Validated;
+
+        // Ensure History is not null before calling Select
+        this.History = wikiPage.History != null
+            ? wikiPage.History.Select(ph => new PageHistoryResponseDTO(ph)).ToList()
+            : new List<PageHistoryResponseDTO>(); // Default to empty list if History is null
     }
 }
 
-//DTO necessário pq se vc retorna a WikiPage direta ela fica em um loopCiclico
-//PQ na wikipage tem um User, e no User tem uma WikiPage, resultando em um deadLock
+// DTO necessary because returning WikiPage directly causes a circular reference
+// WikiPage has a User, and User has a WikiPage, resulting in a deadlock
