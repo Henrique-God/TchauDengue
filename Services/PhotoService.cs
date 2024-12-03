@@ -25,7 +25,8 @@ namespace TchauDengue.Services
                 var UploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
-                    Folder = "TchauDengue"
+                    Folder = "TchauDengue",
+                    Transformation = new Transformation().Width(700).Height(500).Crop("fill")
                 };
 
                 uploadResult = await cloudinary.UploadAsync(UploadParams);
