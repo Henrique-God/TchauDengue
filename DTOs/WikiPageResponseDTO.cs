@@ -11,18 +11,20 @@ public class WikiPageResponseDTO
     public DateTime UpdatedAt { get; set; }
     public List<PageHistoryResponseDTO> History { get; set; }
 
-    public WikiPageResponseDTO(WikiPage wikiPage, string userName)
-    {
-        this.Id = wikiPage.Id;
-        this.PageText = wikiPage.PageText;
-        this.PageTitle = wikiPage.PageTitle;
-        this.OwnerName = userName ?? "";
-        this.Validated = wikiPage.Validated;
-        this.UpdatedAt = wikiPage.UpdatedAt;
-        this.History = wikiPage.History
-            .Select(ph => new PageHistoryResponseDTO(ph))
-            .ToList();
-    }
+public WikiPageResponseDTO(WikiPage wikiPage, string userName)
+{
+    if (wikiPage == null) throw new ArgumentNullException(nameof(wikiPage));
+    
+    this.Id = wikiPage.Id;
+    this.PageText = wikiPage.PageText ?? "";
+    this.PageTitle = wikiPage.PageTitle ?? "";
+    this.OwnerName = userName ?? "";
+    this.UpdatedAt = wikiPage.UpdatedAt;
+    this.History = (wikiPage.History ?? new List<PageHistory>())
+        .Select(ph => new PageHistoryResponseDTO(ph))
+        .ToList();
+}
+
 
     public WikiPageResponseDTO(WikiPage wikiPage)
     {
