@@ -13,7 +13,7 @@ namespace TchauDengue.Controllers
 {
     [ApiController]
     [Route("/users")]
-    [Authorize(Roles ="ADMIN")]
+    [Authorize]
     public class UsersController : ControllerBase
     {
 
@@ -90,15 +90,26 @@ namespace TchauDengue.Controllers
         [Route("get-user")]
         public async Task<ActionResult<User>> GetUser(string userName)
         {
-            User user = await this.usersService.FindByUserName(userName);
+            string username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            if (user == null)
+            if (username == null) return BadRequest("No username found in token!");
+
+            User requester = await this.usersService.FindByUserName(username);
+
+            User searchedUser = await this.usersService.FindByUserName(userName);
+
+            if (requester.UserName != searchedUser.UserName && requester.Role != Roles.ADMIN)
+            {
+                return BadRequest("Você não tem acesso à esses dados!");
+            }
+
+            if (searchedUser == null)
             {
                 return Ok("Usuário não encontrado!");
             }
             else
             {
-                return Ok(new FullUserDTO(user));
+                return Ok(new FullUserDTO(searchedUser));
             }
         }
 

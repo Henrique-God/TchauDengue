@@ -9,7 +9,7 @@ public class WikiPageResponseDTO
     public bool Validated { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
-    public List<PageHistoryResponseDTO> History { get; set; }
+    public List<PageHistoryResponseDTO>? History { get; set; }
 
     public WikiPageResponseDTO(WikiPage wikiPage, string userName)
     {
@@ -32,9 +32,9 @@ public class WikiPageResponseDTO
         this.OwnerName = "";
         this.Validated = wikiPage.Validated;
         this.UpdatedAt = wikiPage.UpdatedAt;
-        this.History = wikiPage.History
-            .Select(ph => new PageHistoryResponseDTO(ph))
-            .ToList();
+        this.History = (wikiPage.History ?? new List<PageHistory>())
+        .Select(ph => new PageHistoryResponseDTO(ph))
+        .ToList();
     }
 }
 
