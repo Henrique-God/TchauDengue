@@ -72,7 +72,7 @@ namespace TchauDengue.Controllers
         {
             User user = await this.usersService.FindByUserName(userName);
 
-            if (user == null) return Unauthorized("UsuÃ¡rio incorreto!");
+            if (user == null) return Unauthorized("Usuário incorreto!");
 
             HMACSHA512 hmac = new HMACSHA512(user.PasswordSalt);
             byte[] computedhash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
@@ -106,7 +106,7 @@ namespace TchauDengue.Controllers
 
             if (searchedUser == null)
             {
-                return Ok("Usuï¿½rio nï¿½o encontrado!");
+                return Ok("Usuário não encontrado!");
             }
             else
             {
