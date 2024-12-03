@@ -55,7 +55,7 @@ namespace TchauDengue.Controllers
             try
             {
                 User user = await this.usersService.Register(registerDTO);
-                return Ok(new LoginDTO(user.UserName, this.tokenService.CreateToken(user)));
+                return Ok(new LoginDTO(user, this.tokenService.CreateToken(user)));
 
             }
             catch (Exception e)
@@ -72,10 +72,9 @@ namespace TchauDengue.Controllers
         {
             User user = await this.usersService.FindByUserName(userName);
 
-            if (user == null) return Unauthorized("Usu·rio incorreto!");
+            if (user == null) return Unauthorized("Usu√°rio incorreto!");
 
             HMACSHA512 hmac = new HMACSHA512(user.PasswordSalt);
-
             byte[] computedhash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
 
             for (int i = 0; i < computedhash.Length; i++)
@@ -83,8 +82,10 @@ namespace TchauDengue.Controllers
                 if (computedhash[i] != user.PasswordHash[i]) return Unauthorized("Senha incorreta!");
             }
 
-            return new LoginDTO(userName, this.tokenService.CreateToken(user));
+            // Pass the Role to the LoginDTO
+            return new LoginDTO(user, this.tokenService.CreateToken(user));
         }
+
 
         [HttpGet]
         [Route("get-user")]
@@ -105,7 +106,7 @@ namespace TchauDengue.Controllers
 
             if (searchedUser == null)
             {
-                return Ok("Usu·rio n„o encontrado!");
+                return Ok("UsuÔøΩrio nÔøΩo encontrado!");
             }
             else
             {
