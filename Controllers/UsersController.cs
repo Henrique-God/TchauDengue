@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
@@ -33,9 +34,22 @@ namespace TchauDengue.Controllers
         [Route("get-users")]
         public async Task<ActionResult<IEnumerable<UserReturnDTO>>> GetUsers()
         {
-            IEnumerable<UserReturnDTO> users = await usersService.GetUsers();
+            string username = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-            return Ok(users);
+            if (username == null) return BadRequest("No username found in token!");
+
+            User requester = await this.usersService.FindByUserName(username);
+
+            if (requester.Role != Roles.ADMIN)
+            {
+                IEnumerable<UserReturnDTO> users = await usersService.GetUsers();
+                return Ok(users);
+            }
+            else
+            {
+                List<FullUserDTO> users = await this.dataContext.Users.Select(wp => new FullUserDTO(wp)).ToListAsync();
+                return Ok(users);
+            }
         }
 
         [HttpGet]
