@@ -201,6 +201,7 @@ namespace TchauDengue.Controllers
         }
 
         [HttpGet("get-pages")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<WikiPageResponseDTO>>> GetApprovedPages()
         {
             List<WikiPageResponseDTO> page = await this.dataContext.WikiPages
