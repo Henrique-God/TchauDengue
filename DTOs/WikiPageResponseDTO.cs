@@ -19,6 +19,7 @@ public WikiPageResponseDTO(WikiPage wikiPage, string userName)
     this.PageText = wikiPage.PageText ?? "";
     this.PageTitle = wikiPage.PageTitle ?? "";
     this.OwnerName = userName ?? "";
+    this.Validated = wikiPage.Validated;
     this.UpdatedAt = wikiPage.UpdatedAt;
     this.History = (wikiPage.History ?? new List<PageHistory>())
         .Select(ph => new PageHistoryResponseDTO(ph))
