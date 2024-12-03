@@ -109,8 +109,11 @@ namespace TchauDengue.Controllers
 
             User owner = this.dataContext.Users.Find(page.UserId);
 
-            if (requester.Role != Roles.ADMIN && requester.Id != owner.Id)
-                return Forbid("Você não tem acesso à essa página!");
+            if (page.Validated == false)
+            {
+                if (requester.Role != Roles.ADMIN && requester.Id != owner.Id)
+                    return Forbid("Você não tem acesso à essa página!");
+            }
 
             return Ok(new WikiPageResponseDTO(page, owner.UserName));
         }
