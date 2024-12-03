@@ -135,6 +135,7 @@ namespace TchauDengue.Controllers
             return Ok(picture);
         }
         [HttpGet("search-pages/{pageTitle}")]
+        [AllowAnonymous]
         public async Task<ActionResult<IEnumerable<WikiPageResponseDTO>>> SearchPages(string pageTitle)
         {
             // Normalize slug back to title format (replace hyphens with spaces, then compare case-insensitively)
@@ -171,6 +172,7 @@ namespace TchauDengue.Controllers
         }
 
         [HttpGet("get-titles")]
+        [AllowAnonymous]
         public async Task<ActionResult> GetTitles()
         {
             List<string> page = await this.dataContext.WikiPages
