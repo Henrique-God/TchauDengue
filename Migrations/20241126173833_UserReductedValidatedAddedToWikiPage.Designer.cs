@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TchauDengue.Providers;
@@ -11,9 +12,11 @@ using TchauDengue.Providers;
 namespace TchauDengue.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241126173833_UserReductedValidatedAddedToWikiPage")]
+    partial class UserReductedValidatedAddedToWikiPage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace TchauDengue.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("AddedWhen")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PageText")
@@ -38,9 +41,6 @@ namespace TchauDengue.Migrations
 
                     b.Property<string>("PageTitle")
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("WikiPageId")
                         .HasColumnType("integer");
@@ -50,6 +50,25 @@ namespace TchauDengue.Migrations
                     b.HasIndex("WikiPageId");
 
                     b.ToTable("PageHistory");
+                });
+
+            modelBuilder.Entity("TchauDengue.Entities.Photo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Photo");
                 });
 
             modelBuilder.Entity("TchauDengue.Entities.User", b =>
@@ -72,17 +91,8 @@ namespace TchauDengue.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
 
-                    b.Property<string>("PdfPublicId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PdfUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PicturePublicId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProfilePicture")
-                        .HasColumnType("text");
+                    b.Property<int?>("PhotoId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("Role")
                         .HasColumnType("text");
@@ -103,6 +113,8 @@ namespace TchauDengue.Migrations
                         .HasColumnType("text");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PhotoId");
 
                     b.ToTable("Users");
                 });
@@ -149,6 +161,15 @@ namespace TchauDengue.Migrations
                         .IsRequired();
 
                     b.Navigation("WikiPage");
+                });
+
+            modelBuilder.Entity("TchauDengue.Entities.User", b =>
+                {
+                    b.HasOne("TchauDengue.Entities.Photo", "Photo")
+                        .WithMany()
+                        .HasForeignKey("PhotoId");
+
+                    b.Navigation("Photo");
                 });
 
             modelBuilder.Entity("TchauDengue.Entities.WikiPage", b =>

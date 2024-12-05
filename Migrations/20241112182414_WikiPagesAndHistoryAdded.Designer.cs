@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TchauDengue.Providers;
@@ -11,9 +12,11 @@ using TchauDengue.Providers;
 namespace TchauDengue.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241112182414_WikiPagesAndHistoryAdded")]
+    partial class WikiPagesAndHistoryAdded
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace TchauDengue.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("AddedWhen")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PageText")
@@ -38,9 +41,6 @@ namespace TchauDengue.Migrations
 
                     b.Property<string>("PageTitle")
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("WikiPageId")
                         .HasColumnType("integer");
@@ -72,19 +72,7 @@ namespace TchauDengue.Migrations
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
 
-                    b.Property<string>("PdfPublicId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PdfUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PicturePublicId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProfilePicture")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Role")
+                    b.Property<string>("PhoneNumber")
                         .HasColumnType("text");
 
                     b.Property<int>("SocialNumber")
@@ -94,9 +82,6 @@ namespace TchauDengue.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("UserName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Validated")
                         .HasColumnType("text");
 
                     b.Property<string>("ZipCode")
@@ -129,9 +114,6 @@ namespace TchauDengue.Migrations
 
                     b.Property<int>("UserId")
                         .HasColumnType("integer");
-
-                    b.Property<bool>("Validated")
-                        .HasColumnType("boolean");
 
                     b.HasKey("Id");
 

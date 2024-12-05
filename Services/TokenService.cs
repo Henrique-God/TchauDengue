@@ -18,7 +18,8 @@ namespace TchauDengue.Services
         {
             List<Claim> claims = new List<Claim>
             {
-                new Claim(JwtRegisteredClaimNames.NameId, user.UserName)
+                new Claim(JwtRegisteredClaimNames.NameId, user.UserName),
+                new Claim(ClaimTypes.Role, user.Role)
             };
 
             SigningCredentials creds = new SigningCredentials(this.Key, SecurityAlgorithms.HmacSha512Signature);

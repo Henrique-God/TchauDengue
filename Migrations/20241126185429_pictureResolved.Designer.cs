@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TchauDengue.Providers;
@@ -11,9 +12,11 @@ using TchauDengue.Providers;
 namespace TchauDengue.Migrations
 {
     [DbContext(typeof(DataContext))]
-    partial class DataContextModelSnapshot : ModelSnapshot
+    [Migration("20241126185429_pictureResolved")]
+    partial class pictureResolved
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -30,7 +33,7 @@ namespace TchauDengue.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("CreatedAt")
+                    b.Property<DateTime>("AddedWhen")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PageText")
@@ -38,9 +41,6 @@ namespace TchauDengue.Migrations
 
                     b.Property<string>("PageTitle")
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("WikiPageId")
                         .HasColumnType("integer");
@@ -50,6 +50,31 @@ namespace TchauDengue.Migrations
                     b.HasIndex("WikiPageId");
 
                     b.ToTable("PageHistory");
+                });
+
+            modelBuilder.Entity("TchauDengue.Entities.ProfilePicture", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("PublicId")
+                        .HasColumnType("text");
+
+                    b.Property<string>("Url")
+                        .HasColumnType("text");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("ProfilePicture");
                 });
 
             modelBuilder.Entity("TchauDengue.Entities.User", b =>
@@ -71,18 +96,6 @@ namespace TchauDengue.Migrations
 
                     b.Property<byte[]>("PasswordSalt")
                         .HasColumnType("bytea");
-
-                    b.Property<string>("PdfPublicId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PdfUrl")
-                        .HasColumnType("text");
-
-                    b.Property<string>("PicturePublicId")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ProfilePicture")
-                        .HasColumnType("text");
 
                     b.Property<string>("Role")
                         .HasColumnType("text");
@@ -151,6 +164,17 @@ namespace TchauDengue.Migrations
                     b.Navigation("WikiPage");
                 });
 
+            modelBuilder.Entity("TchauDengue.Entities.ProfilePicture", b =>
+                {
+                    b.HasOne("TchauDengue.Entities.User", "User")
+                        .WithOne("ProfilePicture")
+                        .HasForeignKey("TchauDengue.Entities.ProfilePicture", "UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("TchauDengue.Entities.WikiPage", b =>
                 {
                     b.HasOne("TchauDengue.Entities.User", "Owner")
@@ -164,6 +188,8 @@ namespace TchauDengue.Migrations
 
             modelBuilder.Entity("TchauDengue.Entities.User", b =>
                 {
+                    b.Navigation("ProfilePicture");
+
                     b.Navigation("WikiPages");
                 });
 

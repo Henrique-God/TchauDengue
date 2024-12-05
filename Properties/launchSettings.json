@@ -27,7 +27,10 @@
       "applicationUrl": "https://localhost:5000;http://localhost:5036",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "DATABASE_CONECTION_STRING": "Host=estagiosv2.pcs.usp.br:65432;Database=db_grupo02;Username=u_grupo02;Password=grupo02"
+        "DATABASE_CONECTION_STRING": "Host=estagiosv2.pcs.usp.br:65432;Database=db_grupo02;Username=u_grupo02;Password=grupo02",
+        "CloudName": "druh6emwt",
+        "ApiKey": "297986747726571",
+        "ApiSecret": "wVGIDvbAnTx7Oj7ZzZWS67YS79M"
       }
     },
     "IIS Express": {
